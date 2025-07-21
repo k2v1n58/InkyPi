@@ -277,13 +277,15 @@ class Weather(BasePlugin):
             weather_icon_path = self.get_plugin_dir(f"icons/{weather_icon}.png")
 
             timestamp = int(dt.replace(hour=12, minute=0, second=0).timestamp())
-
+            api_url = f"https://api.farmsense.net/v1/moonphases/?d={timestamp}"
+           
             try:
-                resp = requests.get(f"https://api.farmsense.net/v1/moonphases/?d={timestamp}")
+                resp = requests.get(api_url, verify=False)
                 moon = resp.json()[0]
                 phase_raw = moon.get("Phase", "New Moon")
                 illum_pct = float(moon.get("Illumination", 0)) * 100
                 phase_name = phase_raw.lower().replace(" ", "")
+                phase_name = "newmoon" if phase_name == "darkmoon" else phase_name
             except Exception:
                 illum_pct = 0
                 phase_name = "newmoon"
