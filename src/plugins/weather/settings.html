@@ -15,6 +15,14 @@
 </div>
 
 <div class="form-group">
+    <label for="weatherProvider" class="form-label">Weather Provider:</label>
+    <select id="weatherProvider" name="weatherProvider" class="form-input">
+        <option value="OpenWeatherMap">OpenWeatherMap</option>
+        <option value="OpenMeteo">Open-Meteo</option>
+    </select>
+</div>
+
+<div class="form-group">
     <label for="units" class="form-label">Units:</label>
     <select id="units" name="units" class="form-input">
         <option value="imperial">Imperial (°F)</option>
@@ -40,6 +48,11 @@
         <input type="checkbox" id="displayGraph" name="displayGraph" onclick="this.value=this.checked ? 'true' : 'false';">
         <span>Weather Graph</span>
     </div>
+	
+    <div class="form-group">
+        <input type="checkbox" id="displayRain" name="displayRain" onclick="this.value=this.checked ? 'true' : 'false';">
+        <span>Display Rain on Graph</span>
+    </div>
 
     <div class="form-group">
         <input type="checkbox" id="moonPhase" name="moonPhase" onclick="this.value=this.checked ? 'true' : 'false';">
@@ -58,7 +71,6 @@
     </div>
 </div>
 
-<!-- Modal -->
 <div id="mapModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('mapModal')">×</span>
@@ -70,7 +82,6 @@
 </div>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', () => {
 
         const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -112,6 +123,7 @@
             document.getElementById('latitude').value = pluginSettings.latitude;
             document.getElementById('longitude').value = pluginSettings.longitude;
 
+            document.getElementById('weatherProvider').value = pluginSettings.weatherProvider || 'OpenWeatherMap';
             document.getElementById('units').value = pluginSettings.units;
 
             document.getElementById('displayRefreshTime').checked = pluginSettings.displayRefreshTime;
@@ -122,6 +134,9 @@
 
             document.getElementById('displayGraph').checked = pluginSettings.displayGraph;
             document.getElementById('displayGraph').value = pluginSettings.displayGraph;
+			
+			document.getElementById('displayRain').checked = pluginSettings.displayRain;
+            document.getElementById('displayRain').value = pluginSettings.displayRain;
 
             document.getElementById('displayForecast').checked = pluginSettings.displayForecast;
             document.getElementById('displayForecast').value = pluginSettings.displayForecast;
@@ -130,6 +145,7 @@
             document.getElementById('moonPhase').checked = pluginSettings.moonPhase;
         } else {
             // set default values
+            document.getElementById('weatherProvider').value = "OpenWeatherMap";
             document.getElementById('units').value = "imperial";
             document.getElementById('displayRefreshTime').checked = true;
             document.getElementById('displayRefreshTime').value = "true";
@@ -137,9 +153,11 @@
             document.getElementById('displayMetrics').value = "true";
             document.getElementById('displayGraph').checked = true;
             document.getElementById('displayGraph').value = "true";
+			document.getElementById('displayRain').checked = false;
+            document.getElementById('displayRain').value = "false";
             document.getElementById('displayForecast').checked = true;
             document.getElementById('displayForecast').value = "true";
-            
+
             document.getElementById('forecastDays').value = 7
             document.getElementById('moonPhase').checked = false;
         }
