@@ -286,7 +286,12 @@ class Weather(BasePlugin):
                 phase_raw = moon.get("Phase", "New Moon")
                 illum_pct = float(moon.get("Illumination", 0)) * 100
                 phase_name = phase_raw.lower().replace(" ", "")
-                phase_name = "newmoon" if phase_name == "darkmoon" else phase_name
+                if phase_name == "darkmoon":
+                    phase_name = "newmoon"
+                elif phase_name in ("3rdquarter", "thirdquarter"):
+                    phase_name = "lastquarter"
+                elif phase_name in ("1stquarter", "firstquarter"):
+                    phase_name = "firstquarter"
             except Exception:
                 illum_pct = 0
                 phase_name = "newmoon"
