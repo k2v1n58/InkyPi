@@ -310,7 +310,7 @@ class Weather(BasePlugin):
             hour_forecast = {
                 "time": self.format_time(dt, time_format, hour_only=True),
                 "temperature": int(hour.get("temp")),
-                "precipitiation": hour.get("pop")
+                "precipitation": hour.get("pop")
             }
             hourly.append(hour_forecast)
         return hourly
@@ -344,7 +344,7 @@ class Weather(BasePlugin):
             hour_forecast = {
                 "time": self.format_time(dt, time_format, True),
                 "temperature": int(sliced_temperatures[i]) if i < len(sliced_temperatures) else 0,
-                "precipitiation": (sliced_precipitation_probabilities[i] / 100) if i < len(sliced_precipitation_probabilities) else 0
+                "precipitation": (sliced_precipitation_probabilities[i] / 100) if i < len(sliced_precipitation_probabilities) else 0
             }
             hourly.append(hour_forecast)
         return hourly
