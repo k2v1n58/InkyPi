@@ -31,7 +31,7 @@ AIR_QUALITY_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat={lat
 GEOCODING_URL = "http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={long}&limit=1&appid={api_key}"
 
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&hourly=temperature_2m,precipitation_probability,relative_humidity_2m,surface_pressure,visibility&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&current_weather=true&timezone=auto&models=best_match&forecast_days={forecast_days}"
-OPEN_METEO_AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={long}&hourly=european_aqi,uv_index,uv_index_clear_sky&timezone=auto"
+OPEN_METEO_AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={long}&current=european_aqi,uv_index"
 OPEN_METEO_UNIT_PARAMS = {
     "standard": "temperature_unit=kelvin&wind_speed_unit=ms&precipitation_unit=mm",
     "metric":   "temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm",
@@ -501,19 +501,13 @@ class Weather(BasePlugin):
         })
 
         # UV Index
-        uv_index_hourly_times = aqi_data.get('hourly', {}).get('time', [])
-        uv_index_values = aqi_data.get('hourly', {}).get('uv_index', [])
-        current_uv_index = "N/A"
-        for i, time_str in enumerate(uv_index_hourly_times):
-            try:
-                if datetime.fromisoformat(time_str).astimezone(tz).hour == current_time.hour:
-                    current_uv_index = uv_index_values[i]
-                    break
-            except ValueError:
-                logger.warning(f"Could not parse time string {time_str} for UV Index.")
-                continue
+        uv_index_value = aqi_data.get('current', {}).get('uv_index')
+        if isinstance(uv_index_value, (int, float)):
+            uv_index_value = round(uv_index_value, 1)
         data_points.append({
-            "label": "UV Index", "measurement": current_uv_index, "unit": '',
+            "label": "UV Index", 
+            "measurement": uv_index_value if uv_index_value is not None else "N/A",
+            "unit": '', 
             "icon": self.get_plugin_dir('icons/uvi.png')
         })
 
@@ -546,24 +540,28 @@ class Weather(BasePlugin):
             "icon": self.get_plugin_dir('icons/visibility.png')
         })
 
-        # Air Quality
-        aqi_hourly_times = aqi_data.get('hourly', {}).get('time', [])
-        aqi_values = aqi_data.get('hourly', {}).get('european_aqi', [])
-        current_aqi = "N/A"
-        for i, time_str in enumerate(aqi_hourly_times):
-            try:
-                if datetime.fromisoformat(time_str).astimezone(tz).hour == current_time.hour:
-                    current_aqi = round(aqi_values[i], 1)
-                    break
-            except ValueError:
-                logger.warning(f"Could not parse time string {time_str} for AQI.")
-                continue
-        scale = ""
-        if current_aqi:
-            scale = ["Good","Fair","Moderate","Poor","Very Poor","Ext Poor"][min(current_aqi//20,5)]
+        # Air Quality (European AQI)
+        aqi_value = aqi_data.get('current', {}).get('european_aqi', None)
+        aqi_text = "N/A"
+
+        if aqi_value is not None:
+            if aqi_value <= 20:
+                aqi_text = "Good"
+            elif aqi_value <= 40:
+                aqi_text = "Fair"
+            elif aqi_value <= 60:
+                aqi_text = "Moderate"
+            elif aqi_value <= 80:
+                aqi_text = "Poor"
+            elif aqi_value <= 100:
+                aqi_text = "Very Poor"
+            else:
+                aqi_text = "Extremely Poor"
         data_points.append({
-            "label": "Air Quality", "measurement": current_aqi,
-            "unit": scale, "icon": self.get_plugin_dir('icons/aqi.png')
+            "label": "Air Quality", 
+            "measurement": aqi_value,
+            "unit": aqi_text if aqi_value is not None else "N/A", 
+            "icon": self.get_plugin_dir('icons/aqi.png')
         })
 
         return data_points
