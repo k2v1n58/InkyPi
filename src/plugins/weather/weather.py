@@ -12,7 +12,7 @@ import math
 logger = logging.getLogger(__name__)
         
 def get_moon_phase_name(phase_age: float) -> str:
-    """Détermine le nom de la phase lunaire à partir de l'âge de la lune."""
+    """Determines the name of the lunar phase based on the age of the moon."""
     PHASES_THRESHOLDS = [
         (1.0, "newmoon"),
         (7.0, "waxingcrescent"),
