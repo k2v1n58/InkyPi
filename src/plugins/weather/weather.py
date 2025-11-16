@@ -299,7 +299,7 @@ class Weather(BasePlugin):
 
         return forecast
         
-    def parse_open_meteo_forecast(self, daily_data, tz):
+    def parse_open_meteo_forecast(self, daily_data, tz, is_day):
         """
         Parse the daily forecast from Open-Meteo API and calculate moon phase and illumination using the local 'astral' library.
         """
